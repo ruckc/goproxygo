@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.17.7-bullseye AS build
+FROM docker.io/library/golang:1.18-bullseye AS build
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . /app
 
 RUN go build -o goproxygo cmd/goproxygo/main.go
 
-FROM docker.io/library/debian:stable-slim
+FROM gcr.io/distroless/static-debian11
 
 COPY --from=build /app/goproxygo /goproxygo
 
