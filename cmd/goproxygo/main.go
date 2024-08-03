@@ -64,15 +64,9 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func reverseProxyHandler(destination *url.URL) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(destination)
 
-	proxy.Director = func(req *http.Request) {
-		req.Header.Set("Origin", fmt.Sprintf("%s://%s", destination.Scheme, destination.Host))
-		req.Header.Set("X-Forwarded-Proto", req.URL.Scheme)
-		req.Header.Set("X-Forwarded-Host", req.Host)
-		req.Header.Set("X-Forwarded-Port", req.URL.Port())
-		req.Header.Set("Host", req.Host)
-		req.Host = req.URL.Host
-		req.URL.Scheme = destination.Scheme
-		req.URL.Host = destination.Host
+	proxy.Rewrite = func(r *httputil.ProxyRequest) {
+		r.Out.URL.Scheme = destination.Scheme
+		r.Out.URL.Host = destination.Host
 
 		fmt.Println(req)
 	}
