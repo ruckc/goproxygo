@@ -4,19 +4,19 @@ a simple reverse proxy implementation for quick container assmebling behind a si
 
 ## Usage
 
-This example runs a webserver at `http://localhost:8080` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching regular expression gets the request.
+This example runs a webserver at `http://localhost:8080` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching path to match gets the request.
 ```
-goproxygo /api/.*:http://localhost:8081 /.*:http://localhost:8082
-```
-
-This example runs a webserver at `http://0.0.0.0:8080` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching regular expression gets the request.
-```
-goproxygo --host 0.0.0.0 /api/.*:http://localhost:8081 /.*:http://localhost:8082
+goproxygo /api:http://localhost:8081 /:http://localhost:8082
 ```
 
-This example runs a webserver at `http://0.0.0.0:8000` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching regular expression gets the request.
+This example runs a webserver at `http://0.0.0.0:8080` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching path to match gets the request.
 ```
-goproxygo --host 0.0.0.0 --port 8000 /api/.*:http://localhost:8081 /.*:http://localhost:8082
+goproxygo --host 0.0.0.0 /api:http://localhost:8081 /:http://localhost:8082
+```
+
+This example runs a webserver at `http://0.0.0.0:8000` with /api/ mapped to localhost:8081 and / mapped to localhost:8082.  The first matching path to match gets the request.
+```
+goproxygo --host 0.0.0.0 --port 8000 /api:http://localhost:8081 /:http://localhost:8082
 ```
 
 ## Docker Compose example
@@ -35,9 +35,9 @@ services:
       - "0.0.0.0"
       - "--port"
       - "8080"
-      - /auth/.*:http://keycloak:8080/auth/
-      - /api/.*:http://api:8080/api/
-      - /.*:http://ui:8080/
+      - /auth:http://keycloak:8080/auth
+      - /api:http://api:8080/api
+      - /:http://ui:8080
     links:
       - keycloak
 ```

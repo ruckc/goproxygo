@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"regexp"
 	"strings"
 )
 
@@ -29,7 +28,7 @@ func main() {
 }
 
 type ProxyRoute struct {
-	path  *regexp.Regexp
+	path  *string
 	proxy *httputil.ReverseProxy
 }
 
@@ -38,20 +37,19 @@ type Router struct {
 }
 
 func (router *Router) Handle(path string, destination string) {
-	regexpPath := regexp.MustCompile(path)
 	destinationUrl, err := url.Parse(destination)
 	if err != nil {
 		log.Fatal(err)
 	}
 	handler := reverseProxyHandler(destinationUrl)
 
-	log.Printf("Registering handler for %s to %s\n", regexpPath, destinationUrl)
-	router.routes = append(router.routes, &ProxyRoute{regexpPath, handler})
+	log.Printf("Registering handler for %s to %s\n", path, destinationUrl)
+	router.routes = append(router.routes, &ProxyRoute{&path, handler})
 }
 
 func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range router.routes {
-		matched := route.path.MatchString(r.URL.Path)
+		matched := strings.HasPrefix(r.URL.Path, *route.path)
 		//log.Printf("Checking if %s matches %s and the result is %t", r.URL.Path, route.path, matched)
 		if matched {
 			route.proxy.ServeHTTP(w, r)
@@ -62,13 +60,12 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func reverseProxyHandler(destination *url.URL) *httputil.ReverseProxy {
-	proxy := httputil.NewSingleHostReverseProxy(destination)
-
-	proxy.Rewrite = func(r *httputil.ProxyRequest) {
-		r.Out.URL.Scheme = destination.Scheme
-		r.Out.URL.Host = destination.Host
-
-		fmt.Println(req)
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(destination)
+			r.SetXForwarded()
+			r.Out.Host = r.In.Host
+		},
 	}
 
 	return proxy

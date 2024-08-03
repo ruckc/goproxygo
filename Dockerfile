@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN CGO_ENABLED=0 go build -o goproxygo cmd/goproxygo/main.go
+RUN CGO_ENABLED=0 go build -trimpath -o goproxygo cmd/goproxygo/main.go
 
 FROM gcr.io/distroless/static-debian12
 
