@@ -68,7 +68,7 @@ func reverseProxyHandler(destination *url.URL) *httputil.ReverseProxy {
 		req.Header.Set("Origin", fmt.Sprintf("%s://%s", destination.Scheme, destination.Host))
 		req.Header.Set("X-Forwarded-Proto", req.URL.Scheme)
 		req.Header.Set("X-Forwarded-Host", req.Host)
-		req.Header.Set("X-Forwarded-Port", req.URL.Port)
+		req.Header.Set("X-Forwarded-Port", req.URL.Port())
 		req.Header.Set("Host", req.Host)
 		req.Host = req.URL.Host
 		req.URL.Scheme = destination.Scheme
