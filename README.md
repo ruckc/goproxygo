@@ -19,6 +19,29 @@ This example runs a webserver at `http://0.0.0.0:8000` with /api/ mapped to loca
 goproxygo --host 0.0.0.0 --port 8000 /api/.*:http://localhost:8081 /.*:http://localhost:8082
 ```
 
+## Docker Compose example
+
+The below example would map Keycloak, an API, and the main website content behind a single URL.
+
+```yaml
+---
+services:
+  proxy:
+    image: ghcr.io/ruckc/goproxygo:0.3.3
+    ports:
+      - "8080:8080"
+    command:
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8080"
+      - /auth/.*:http://keycloak:8080/auth/
+      - /api/.*:http://api:8080/api/
+      - /.*:http://ui:8080/
+    links:
+      - keycloak
+```
+
 ## Build Instructions
 
 In order to build
