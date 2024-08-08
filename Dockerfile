@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.22.5-bookworm AS build
+FROM docker.io/library/golang:1.22.6-bookworm AS build
 
 WORKDIR /app
 
