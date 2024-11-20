@@ -14,6 +14,9 @@ func main() {
 	router := Router{}
 	host := flag.String("host", "127.0.0.1", "which interface to bind to")
 	port := flag.Int("port", 8080, "which port to bind to")
+	accesslog := flag.Bool("accesslog", false, "enable access logging to stdout")
+
+	router.AccessLog = accesslog
 
 	flag.Parse()
 	for _, arg := range flag.Args() {
@@ -33,7 +36,8 @@ type ProxyRoute struct {
 }
 
 type Router struct {
-	routes []*ProxyRoute
+	routes    []*ProxyRoute
+	AccessLog *bool
 }
 
 func (router *Router) Handle(path string, destination string) {
@@ -48,6 +52,12 @@ func (router *Router) Handle(path string, destination string) {
 }
 
 func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// do access log if enabled
+	if *router.AccessLog {
+		// write out access log
+		log.Printf("%s %s %s %s\n", r.RemoteAddr, r.Method, r.URL.Path, r.Proto)
+	}
+
 	for _, route := range router.routes {
 		matched := strings.HasPrefix(r.URL.Path, *route.path)
 		//log.Printf("Checking if %s matches %s and the result is %t", r.URL.Path, route.path, matched)
